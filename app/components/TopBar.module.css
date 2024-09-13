@@ -1,0 +1,32 @@
+.topbar {
+  display: flex;
+  justify-content: space-between; /* 양끝에 요소 배치 */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: fixed; /* 상단에 고정 */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px; /* 높이 설정 */
+  z-index: 1000; /* 다른 요소 위에 표시 */
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #4A148C;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+}
+
+.profileImage {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+}

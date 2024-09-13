@@ -1,0 +1,32 @@
++-------------------+      +--------------------+      +-----------------+
+|       User        |      |        Post         |      |     Comment      |
++-------------------+      +--------------------+      +-----------------+
+| id (PK)           |<----o| id (PK)             |<----o| id (PK)          |
+| username          |      | title               |      | post_id (FK)     |
+| password          |      | content             |      | author_id (FK)   |
+| email             |      | author_id (FK)      |      | content          |
+| created_at        |      | created_at          |      | created_at       |
+| profile_image     |      | updated_at          |      +-----------------+
++-------------------+      +--------------------+
+                              ^        |        
+                              |        v        
+                              +-----------------+
+                              |      Like       |
+                              +-----------------+
+                              | id (PK)         |
+                              | post_id (FK)    |
+                              | user_id (FK)    |
+                              | created_at      |
+                              +-----------------+
+
+                              ^        |
+                              |        v
+                          +-----------------+
+                          |      File       |
+                          +-----------------+
+                          | id (PK)         |
+                          | file_name       |
+                          | file_path       |
+                          | post_id (FK)    |
+                          | uploaded_at     |
+                          +-----------------+

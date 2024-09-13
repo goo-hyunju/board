@@ -1,0 +1,13 @@
+.imageContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .profileImage {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%; /* 동그랗게 보이게 설정 */
+    object-fit: cover; /* 이미지가 컨테이너 안에 맞게 채워짐 */
+  }
+  
