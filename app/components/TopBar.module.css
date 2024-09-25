@@ -19,14 +19,33 @@
   color: #4A148C;
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* 요소 간의 간격 설정 */
+}
+
 .userProfile {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .profileImage {
   width: 35px;
   height: 35px;
   border-radius: 50%;
+  object-fit: cover;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.logoutImage {
+  width: 35px;
+  height: 35px;
   object-fit: cover;
 }

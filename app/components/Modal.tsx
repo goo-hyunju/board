@@ -22,15 +22,12 @@ export default function Modal({
 
   const onSubmit = async (data: FormData) => {
     const file = data.file[0] || null;
-    
-    console.log("Submitting data:", { title: data.title, content: data.content, file });
-    
+
     await onSave(data.title, data.content, file);
     await fetchPosts();
     reset();
     onClose();
   };
-  
 
   return (
     <div className={styles.modalOverlay}>
@@ -52,7 +49,7 @@ export default function Modal({
           />
           {errors.content && <span className={styles.errorMessage}>내용을 입력하세요</span>}
 
-          <input type="file" {...register('file')} className={styles.fileInput} /> {/* 파일 업로드 */}
+          <input type="file" {...register('file')} className={styles.fileInput} />
 
           <div className={styles.buttonContainer}>
             <button type="button" onClick={onClose} className={styles.cancelButton}>취소</button>

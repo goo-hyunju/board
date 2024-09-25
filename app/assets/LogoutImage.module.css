@@ -1,0 +1,12 @@
+.imageContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .profileImage {
+    width: 30px;
+    height: 30px;
+    object-fit: cover; /* 이미지가 컨테이너 안에 맞게 채워짐 */
+  }
+  
