@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import styles from './UserModal.module.css'; // 모달 스타일
+import styles from './UserListModal.module.css'; // 모달 스타일
 
 interface User {
   id: number;
@@ -12,7 +12,7 @@ interface User {
   phone: string;
 }
 
-export default function UserModal({ onClose }: { onClose: () => void }) {
+export default function UserListModal({ onClose }: { onClose: () => void }) {
   const [users, setUsers] = useState<User[]>([]);
 
   // JWT 토큰을 로컬스토리지에서 가져오는 함수

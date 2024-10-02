@@ -1,4 +1,3 @@
-// UserManagement.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,9 +6,12 @@ import { RootState } from '../store/store';
 import { logout } from '../slices/authSlice'; // Redux action
 import styles from './UserManagement.module.css';
 import TopBar from '../components/TopBar';
-import UserModal from './UserModal';
+import EditUserModal from './EditUserModal'; // 사용자 정보 수정 모달
+import UserListModal from './UserListModal'; // 사용자 목록 모달
+
 
 interface User {
+  id: number;
   username: string;
   email: string;
   department: string;
@@ -19,7 +21,8 @@ interface User {
 }
 
 export default function UserManagement() {
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 사용자 정보 수정 모달 상태 관리
+  const [isUserListModalOpen, setIsUserListModalOpen] = useState(false); // 사용자 목록 모달 상태 관리
   const [user, setUser] = useState<User | null>(null); // 로그인된 사용자 정보 상태 관리
   const dispatch = useDispatch();
 
@@ -66,50 +69,55 @@ export default function UserManagement() {
 
   return (
     <div>
-        <TopBar />
+      <TopBar />
       <div className={styles.container}>
         <h1 className={styles.title}>기본정보</h1>
         <div className={styles.userInfo}>
           <div className={styles.imageSection}>
             <img
-              src={user.profileImage || '/default-profile.png'} // 프로필 이미지가 없을 경우 기본 이미지 표시
+              src={user.profileImage || '/user.png'} // 프로필 이미지가 없을 경우 기본 이미지 표시
               alt="User Profile"
               className={styles.profileImage}
             />
             <button className={styles.imageButton}>사진 관리</button>
           </div>
           <div className={styles.infoSection}>
-            <div className={styles.infoItem}>
-              <label>이름</label>
-              <input type="text" value={user.username} readOnly />
-            </div>
-            <div className={styles.infoItem}>
-              <label>회사</label>
-              <input type="text" value="WEEDS" readOnly />
-            </div>
-            <div className={styles.infoItem}>
-              <label>부서</label>
-              <input type="text" value={user.department || '부서 없음'} readOnly />
-            </div>
-            <div className={styles.infoItem}>
-              <label>직무</label>
-              <input type="text" value={user.position || '직무 없음'} readOnly />
-            </div>
-            <div className={styles.infoItem}>
-              <label>이메일</label>
-              <input type="email" value={user.email} readOnly />
-            </div>
-            <div className={styles.infoItem}>
-              <label>휴대폰</label>
-              <input type="tel" value={user.phone || '휴대폰 정보 없음'} readOnly />
-            </div>
+            <InfoItem label="이름" value={user.username} />
+            <InfoItem label="회사" value="WEEDS" />
+            <InfoItem label="부서" value={user.department || '부서 없음'} />
+            <InfoItem label="직무" value={user.position || '직무 없음'} />
+            <InfoItem label="이메일" value={user.email} />
+            <InfoItem label="휴대폰" value={user.phone || '휴대폰 정보 없음'} />
           </div>
         </div>
-        <button className={styles.manageButton} onClick={() => setIsModalOpen(true)}>
-          사용자 관리
-        </button>
-        {isModalOpen && <UserModal onClose={() => setIsModalOpen(false)} />}
+        <div className={styles.buttonGroup}>
+          <button className={styles.manageButton} onClick={() => setIsEditModalOpen(true)}>
+            사용자 정보 수정
+          </button>
+          <button className={styles.userListButton} onClick={() => setIsUserListModalOpen(true)}>
+            사용자 목록 보기
+          </button>
+        </div>
+
+        {isEditModalOpen && (
+          <EditUserModal
+            user={user}
+            onClose={() => setIsEditModalOpen(false)}
+            onUserUpdate={setUser}
+          />
+        )}
+
+        {isUserListModalOpen && <UserListModal onClose={() => setIsUserListModalOpen(false)} />}
       </div>
+    </div>
+  );
+}
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className={styles.infoItem}>
+      <label className={styles.label}>{label}</label>
+      <input type="text" value={value} readOnly className={styles.input} />
     </div>
   );
 }

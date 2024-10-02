@@ -9,11 +9,8 @@ export default function Board() {
     id: number;
     title: string;
     content: string;
-    author: {
-      id: number;
-      username: string;
-      email: string;
-    };
+    authorUsername: string;  // 수정된 부분
+    authorEmail: string;     // 수정된 부분
     files: {
       id: number;
       fileName: string;
@@ -73,7 +70,7 @@ export default function Board() {
     if (file) {
       formData.append('file', file);
     }
-    
+
     try {
       const response = await fetch('http://localhost:8080/api/posts', {
         method: 'POST',
@@ -101,7 +98,6 @@ export default function Board() {
       return;
     }
 
-    // API를 호출할 때 파일 이름만 전달하도록 수정
     const downloadUrl = `http://localhost:8080/api/files/download/${fileName}`;
     const a = document.createElement('a');
     a.href = downloadUrl;
@@ -131,14 +127,8 @@ export default function Board() {
             <h2 className={styles.title}>{post.title}</h2>
             <p className={styles.content}>{post.content}</p>
             <div className={styles.postFooter}>
-              {post.author ? (
-                <>
-                  <span className={styles.author}>{post.author.username}</span>
-                  <span className={styles.date}>{post.author.email}</span>
-                </>
-              ) : (
-                <span className={styles.author}>작성자 없음</span>
-              )}
+              <span className={styles.author}>{post.authorUsername}</span> 
+              <span className={styles.date}>{post.authorEmail}</span>    
             </div>
 
             {/* 파일 목록 표시 */}

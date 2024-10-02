@@ -1,10 +1,8 @@
-// TopBar.tsx
-'use client';
-
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { logout } from '../slices/authSlice'; // 로그아웃 액션
+import { login, logout } from '../slices/authSlice';
 import UserImage from '../assets/image';
 import LogoutImage from '../assets/LogoutImage';
 import styles from './TopBar.module.css';
@@ -15,6 +13,15 @@ export default function TopBar() {
 
   // Redux에서 로그인 상태를 가져옴
   const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      dispatch(login()); // 토큰이 있을 경우 Redux 상태를 로그인으로 설정
+    } else {
+      dispatch(logout());
+    }
+  }, [dispatch]);
 
   const handleUserClick = () => {
     router.push('/user'); // 사용자 관리 페이지로 이동

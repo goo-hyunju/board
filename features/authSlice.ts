@@ -24,7 +24,7 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
       state.token = null; // 로그아웃 시 토큰 삭제
     },
-  },
+  }, 
 });
 
 export const { login, logout } = authSlice.actions;
