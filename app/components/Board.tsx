@@ -9,8 +9,9 @@ export default function Board() {
     id: number;
     title: string;
     content: string;
-    authorUsername: string;  // 수정된 부분
-    authorEmail: string;     // 수정된 부분
+    authorUsername: string;
+    authorEmail: string;
+    createdAt: Date;
     files: {
       id: number;
       fileName: string;
@@ -19,13 +20,14 @@ export default function Board() {
   }[]>([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const currentUserId = 1; // 현재 로그인된 사용자의 ID
+  const [page, setPage] = useState(0); // 페이지 번호
+  const [hasMore, setHasMore] = useState(true); // 더 가져올 데이터가 있는지 여부
 
   // JWT 토큰을 가져오는 함수
   const getToken = () => localStorage.getItem('token');
 
   // 게시글 리스트를 백엔드에서 불러오는 함수
-  const fetchPosts = async () => {
+  const fetchPosts = async (page: number) => {
     const token = getToken();
     if (!token) {
       alert('로그인이 필요합니다.');
@@ -33,15 +35,24 @@ export default function Board() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/posts', {
+      const response = await fetch(`http://localhost:8080/api/posts?page=${page}&size=10`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`, // JWT 토큰 추가
         },
       });
+
       if (response.ok) {
         const data = await response.json();
-        setPosts(data);
+        console.log(data,"json");
+
+        // data.content가 배열인지 확인 후 처리
+        if (Array.isArray(data.content)) {
+          setPosts((prevPosts) => [...prevPosts, ...data.content.reverse()]); // 게시물 추가
+          setHasMore(!data.last); // 마지막 페이지 여부에 따라 더보기 버튼 상태 설정
+        } else {
+          console.error('응답 데이터 구조가 예상과 다릅니다. content가 배열이 아닙니다.');
+        }
       } else {
         console.error('게시글을 불러오는 중 오류 발생:', response.statusText);
       }
@@ -50,11 +61,12 @@ export default function Board() {
     }
   };
 
-  // 페이지가 로드되면 게시글을 가져오는 useEffect
+  // 페이지 번호가 변경될 때마다 게시글을 가져오는 useEffect
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    fetchPosts(page); // 페이지 번호가 변경되면 해당 페이지 데이터를 가져옴
+  }, [page]);
 
+  // 게시글 추가 함수
   const addPost = async (title: string, content: string, file: File | null) => {
     const token = getToken();
     if (!token) {
@@ -65,7 +77,6 @@ export default function Board() {
     const formData = new FormData();
     formData.append('title', title);
     formData.append('content', content);
-    formData.append('authorId', currentUserId.toString());
 
     if (file) {
       formData.append('file', file);
@@ -82,7 +93,7 @@ export default function Board() {
 
       if (response.ok) {
         const savedPost = await response.json();
-        setPosts([savedPost, ...posts]);
+        setPosts([savedPost, ...posts]); // 새로운 게시글을 기존 posts 배열 앞에 추가
       } else {
         console.error('게시글을 추가하는 중 오류 발생:', response.statusText);
       }
@@ -91,6 +102,33 @@ export default function Board() {
     }
   };
 
+  // 게시글 삭제 함수
+  const deletePost = async (postId: number) => {
+    const token = getToken();
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`, // JWT 토큰 추가
+        },
+      });
+
+      if (response.ok) {
+        setPosts(posts.filter((post) => post.id !== postId)); // 게시글을 삭제하고 배열을 업데이트
+      } else {
+        console.error('게시글을 삭제하는 중 오류 발생:', response.statusText);
+      }
+    } catch (error) {
+      console.error('API 요청 중 오류 발생:', error);
+    }
+  };
+
+  // 파일 다운로드 처리 함수
   const handleDownload = (filePath: string, fileName: string) => {
     const token = getToken();
     if (!token) {
@@ -103,6 +141,11 @@ export default function Board() {
     a.href = downloadUrl;
     a.download = fileName;
     a.click();
+  };
+
+  // "더보기" 버튼 클릭 시 다음 페이지 로드
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1); // 페이지 번호를 1 증가시킴
   };
 
   return (
@@ -118,17 +161,28 @@ export default function Board() {
           <Modal
             onClose={() => setIsModalOpen(false)}
             onSave={addPost}
-            fetchPosts={fetchPosts}
+            fetchPosts={() => fetchPosts(0)} // 게시글 추가 후 초기화
           />
         )}
 
         {posts.map((post) => (
           <div key={post.id} className={styles.post}>
+            <button
+              className={styles.deleteButton}
+              onClick={() => deletePost(post.id)}
+            >
+              삭제
+            </button>
             <h2 className={styles.title}>{post.title}</h2>
             <p className={styles.content}>{post.content}</p>
             <div className={styles.postFooter}>
-              <span className={styles.author}>{post.authorUsername}</span> 
-              <span className={styles.date}>{post.authorEmail}</span>    
+              <span className={styles.date}>
+                {new Date(post.createdAt).toLocaleDateString()} {/* 작성 날짜 표시 */}
+              </span>
+            </div>
+            <div className={styles.postFooter}>
+              <span className={styles.author}>{post.authorUsername}</span>
+              <span className={styles.email}>{post.authorEmail}</span>
             </div>
 
             {/* 파일 목록 표시 */}
@@ -153,6 +207,14 @@ export default function Board() {
           </div>
         ))}
       </div>
+
+      {hasMore && (
+        <div className={styles.loadMoreContainer}>
+          <button className={styles.loadMoreButton} onClick={handleLoadMore}>
+            더보기
+          </button>
+        </div>
+      )}
     </>
   );
 }

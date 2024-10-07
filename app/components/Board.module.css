@@ -31,6 +31,7 @@
 }
 
 .post {
+  position: relative;
   background-color: #ffffff;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -106,3 +107,15 @@
 .downloadButton:hover {
   background-color: #7B1FA2;
 }
+.deleteButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ff4c4c;
+  font-weight: bold;
+}
+

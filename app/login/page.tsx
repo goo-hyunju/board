@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { login } from '../../features/authSlice';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [userid, setUserid] = useState(''); // userid로 상태 관리
   const [password, setPassword] = useState('');
   const router = useRouter();
   const dispatch = useDispatch();
@@ -21,7 +21,7 @@ export default function Login() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ userid, password }), // userid로 변경
       });
 
       if (response.ok) {
@@ -47,8 +47,8 @@ export default function Login() {
         <input
           type="text"
           placeholder="아이디를 입력하세요"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={userid} // userid로 상태 값 적용
+          onChange={(e) => setUserid(e.target.value)} // userid로 상태 업데이트
         />
         <input
           type="password"

@@ -9,10 +9,10 @@ import TopBar from '../components/TopBar';
 import EditUserModal from './EditUserModal'; // 사용자 정보 수정 모달
 import UserListModal from './UserListModal'; // 사용자 목록 모달
 
-
 interface User {
   id: number;
   username: string;
+  userid: string;
   email: string;
   department: string;
   position: string;
@@ -24,6 +24,7 @@ export default function UserManagement() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // 사용자 정보 수정 모달 상태 관리
   const [isUserListModalOpen, setIsUserListModalOpen] = useState(false); // 사용자 목록 모달 상태 관리
   const [user, setUser] = useState<User | null>(null); // 로그인된 사용자 정보 상태 관리
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // 업로드할 파일 상태 관리
   const dispatch = useDispatch();
 
   // 로그인 상태를 Redux에서 가져옴
@@ -63,6 +64,43 @@ export default function UserManagement() {
     alert('로그아웃 되었습니다.');
   };
 
+  // 파일이 선택되었을 때 호출되는 함수
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    setSelectedFile(file);
+  };
+
+  // 파일 업로드 처리 함수
+  const handleFileUpload = async () => {
+    if (!selectedFile) {
+      alert('파일을 선택해 주세요.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8080/api/users/uploadProfileImage', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, // 토큰 추가
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert('프로필 이미지가 성공적으로 업데이트되었습니다.');
+        fetchUserData(); // 사용자 정보 다시 가져오기
+      } else {
+        console.error('이미지 업로드 중 오류 발생:', response.statusText);
+      }
+    } catch (error) {
+      console.error('API 요청 중 오류 발생:', error);
+    }
+  };
+
   if (!user) {
     return <div>로딩 중...</div>; // 사용자 정보가 없을 때 로딩 상태 표시
   }
@@ -75,14 +113,18 @@ export default function UserManagement() {
         <div className={styles.userInfo}>
           <div className={styles.imageSection}>
             <img
-              src={user.profileImage || '/user.png'} // 프로필 이미지가 없을 경우 기본 이미지 표시
+              src={`http://localhost:8080/uploads/profiles/${user?.profileImage?.split('/').pop()}`}  // 프로필 이미지가 없을 경우 기본 이미지 표시
               alt="User Profile"
               className={styles.profileImage}
             />
-            <button className={styles.imageButton}>사진 관리</button>
+            <input type="file" onChange={handleFileChange} /> {/* 파일 선택 input */}
+            <button className={styles.imageButton} onClick={handleFileUpload}>
+              사진 업로드
+            </button>
           </div>
           <div className={styles.infoSection}>
             <InfoItem label="이름" value={user.username} />
+            <InfoItem label="계정" value={user.userid} />
             <InfoItem label="회사" value="WEEDS" />
             <InfoItem label="부서" value={user.department || '부서 없음'} />
             <InfoItem label="직무" value={user.position || '직무 없음'} />

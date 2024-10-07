@@ -4,6 +4,7 @@ import styles from './EditUserModal.module.css';
 interface User {
   id: any;
   username: string;
+  userid: string;
   email: string;
   department: string;
   position: string;
@@ -54,7 +55,7 @@ export default function EditUserModal({ user, onClose, onUserUpdate }: EditUserM
   };
 
   // 공통된 formRow 생성 함수
-  const renderFormRow = (label: string, name: keyof User, value: string, type = 'text') => (
+  const renderFormRow = (label: string, name: keyof User, value: string, type = 'text', disabled = false) => (
     <div className={styles.formRow}>
       <label className={styles.label}>{label}</label>
       <input
@@ -63,6 +64,7 @@ export default function EditUserModal({ user, onClose, onUserUpdate }: EditUserM
         type={type}
         value={value}
         onChange={handleChange}
+        disabled={disabled} // 비활성화 속성 추가
       />
     </div>
   );
@@ -72,6 +74,7 @@ export default function EditUserModal({ user, onClose, onUserUpdate }: EditUserM
       <div className={styles.modalContent}>
         <h2 className={styles.h2}>사용자 정보 수정</h2>
         {renderFormRow('이름', 'username', editedUser.username)}
+        {renderFormRow('계정', 'userid', editedUser.userid, 'text', true)} {/* 계정 필드 비활성화 */}
         {renderFormRow('이메일', 'email', editedUser.email, 'email')}
         {renderFormRow('부서', 'department', editedUser.department)}
         {renderFormRow('직무', 'position', editedUser.position)}

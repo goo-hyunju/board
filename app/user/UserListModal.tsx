@@ -6,7 +6,7 @@ import styles from './UserListModal.module.css'; // 모달 스타일
 interface User {
   id: number;
   username: string;
-  email: string;
+  userid: string;
   department: string;
   position: string;
   phone: string;
@@ -61,6 +61,7 @@ export default function UserListModal({ onClose }: { onClose: () => void }) {
             <tr>
               <th>ID</th>
               <th>이름</th>
+              <th>계정</th>
               <th>이메일</th>
               <th>부서</th>
               <th>직무</th>
@@ -72,6 +73,7 @@ export default function UserListModal({ onClose }: { onClose: () => void }) {
               <tr key={user.id}>
                 <td>{user.id}</td>
                 <td>{user.username}</td>
+                <td>{user.userid}</td>
                 <td>{user.email}</td>
                 <td>{user.department}</td>
                 <td>{user.position}</td>
