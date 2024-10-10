@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.7",
+    "@types/react-toastify": "^4.0.2",
     "login-app2": "file:",
     "next": "^14.2.12",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-redux": "^9.1.2",
+    "react-toastify": "^10.0.5",
     "redux": "^5.0.1"
   },
   "devDependencies": {
