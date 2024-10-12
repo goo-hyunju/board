@@ -24,9 +24,16 @@ export default function Board() {
   const [hasMore, setHasMore] = useState(true); // 더 가져올 데이터가 있는지 여부
 
   // JWT 토큰을 가져오는 함수
-  const getToken = () => localStorage.getItem('token');
+  const getToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return null;
+    }
+    return token;
+  };
 
-  // 게시글 리스트를 백엔드에서 불러오는 함수
+  // 게시글 리스트를 백엔드에서 불러오는 함수 (페이지네이션 적용, 새로 가져올 때 기존 게시글 덮어쓰기)
   const fetchPosts = async (page: number) => {
     const token = getToken();
     if (!token) {
@@ -35,7 +42,7 @@ export default function Board() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/posts?page=${page}&size=10`, {
+      const response = await fetch(`http://172.16.30.182:40001/api/posts?page=${page}&size=1`, { // 1개씩 가져오기
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`, // JWT 토큰 추가
@@ -44,11 +51,11 @@ export default function Board() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data,"json");
+        console.log(data, 'json');
 
-        // data.content가 배열인지 확인 후 처리
+        // data.content가 배열인지 확인 후 처리 (기존 게시글 덮어쓰기)
         if (Array.isArray(data.content)) {
-          setPosts((prevPosts) => [...prevPosts, ...data.content.reverse()]); // 게시물 추가
+          setPosts(data.content.reverse()); // 게시글을 역순으로 보여주고 하나씩만 표시
           setHasMore(!data.last); // 마지막 페이지 여부에 따라 더보기 버튼 상태 설정
         } else {
           console.error('응답 데이터 구조가 예상과 다릅니다. content가 배열이 아닙니다.');
@@ -66,8 +73,8 @@ export default function Board() {
     fetchPosts(page); // 페이지 번호가 변경되면 해당 페이지 데이터를 가져옴
   }, [page]);
 
-  // 게시글 추가 함수
-  const addPost = async (title: string, content: string, file: File | null) => {
+  // 게시글 추가 함수 (다중 파일 업로드 지원)
+  const addPost = async (title: string, content: string, files: File[]) => {
     const token = getToken();
     if (!token) {
       alert('로그인이 필요합니다.');
@@ -78,12 +85,13 @@ export default function Board() {
     formData.append('title', title);
     formData.append('content', content);
 
-    if (file) {
-      formData.append('file', file);
-    }
+    // 다중 파일을 FormData에 추가
+    files.forEach((file) => {
+      formData.append('files', file); // 여러 파일을 'files'라는 키로 추가
+    });
 
     try {
-      const response = await fetch('http://localhost:8080/api/posts', {
+      const response = await fetch('http://172.16.30.182:40001/api/posts', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`, // JWT 토큰 추가
@@ -93,12 +101,38 @@ export default function Board() {
 
       if (response.ok) {
         const savedPost = await response.json();
-        setPosts([savedPost, ...posts]); // 새로운 게시글을 기존 posts 배열 앞에 추가
+        setPosts([savedPost]); // 새로운 게시글을 기존 posts 배열 앞에 추가 (하나만 보여줌)
+        setIsModalOpen(false);  // 모달 닫기
       } else {
         console.error('게시글을 추가하는 중 오류 발생:', response.statusText);
       }
     } catch (error) {
       console.error('API 요청 중 오류 발생:', error);
+    }
+  };
+  const handleDownload = async (fileId: number) => {
+    const token = getToken();
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    const response = await fetch(`http://172.16.30.182:40001/api/files/download/${fileId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'file_name'; // 실제 파일 이름으로 변경
+      a.click();
+    } else {
+      console.error('파일 다운로드 중 오류 발생');
     }
   };
 
@@ -111,7 +145,7 @@ export default function Board() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+      const response = await fetch(`http://172.16.30.182:40001/api/posts/${postId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`, // JWT 토큰 추가
@@ -119,28 +153,13 @@ export default function Board() {
       });
 
       if (response.ok) {
-        setPosts(posts.filter((post) => post.id !== postId)); // 게시글을 삭제하고 배열을 업데이트
+        setPosts([]); // 삭제 후 게시글 목록을 초기화하여 한 개만 남기도록 처리
       } else {
         console.error('게시글을 삭제하는 중 오류 발생:', response.statusText);
       }
     } catch (error) {
       console.error('API 요청 중 오류 발생:', error);
     }
-  };
-
-  // 파일 다운로드 처리 함수
-  const handleDownload = (filePath: string, fileName: string) => {
-    const token = getToken();
-    if (!token) {
-      alert('로그인이 필요합니다.');
-      return;
-    }
-
-    const downloadUrl = `http://localhost:8080/api/files/download/${fileName}`;
-    const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = fileName;
-    a.click();
   };
 
   // "더보기" 버튼 클릭 시 다음 페이지 로드
@@ -160,7 +179,7 @@ export default function Board() {
         {isModalOpen && (
           <Modal
             onClose={() => setIsModalOpen(false)}
-            onSave={addPost}
+            onSave={addPost} // 다중 파일을 처리할 수 있도록 수정된 addPost 함수
             fetchPosts={() => fetchPosts(0)} // 게시글 추가 후 초기화
           />
         )}
@@ -195,7 +214,7 @@ export default function Board() {
                       <span className={styles.fileName}>{`${file.fileName}`}</span>
                       <button
                         className={styles.downloadButton}
-                        onClick={() => handleDownload(file.filePath, file.fileName)}
+                          onClick={() => handleDownload(file.id)} 
                       >
                         다운로드
                       </button>

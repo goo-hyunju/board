@@ -31,7 +31,7 @@ export default function TopBar() {
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/users/me', {
+      const response = await fetch('http://172.16.30.182:40001/api/users/me', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -73,7 +73,7 @@ export default function TopBar() {
             <div className={styles.userProfile} onClick={handleUserClick}>
               {user?.profileImage ? (
                 <img
-                src={`http://localhost:8080/uploads/profiles/${user?.profileImage?.split('/').pop()}`} // 사용자 프로필 이미지 경로
+                src={`http://172.16.30.182:40001/uploads/profiles/${user?.profileImage?.split('/').pop()}`} // 사용자 프로필 이미지 경로
                   alt="User Profile"
                   className={styles.profileImage}
                 />

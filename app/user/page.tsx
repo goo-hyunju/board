@@ -34,7 +34,7 @@ export default function UserManagement() {
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem('token'); // JWT 토큰 가져오기
-      const response = await fetch('http://localhost:8080/api/users/me', {
+      const response = await fetch('http://172.16.30.182:40001/api/users/me', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`, // 토큰을 Authorization 헤더에 추가
@@ -82,7 +82,7 @@ export default function UserManagement() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8080/api/users/uploadProfileImage', {
+      const response = await fetch('http://172.16.30.182:40001/api/users/uploadProfileImage', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`, // 토큰 추가
@@ -113,7 +113,7 @@ export default function UserManagement() {
         <div className={styles.userInfo}>
           <div className={styles.imageSection}>
             <img
-              src={`http://localhost:8080/uploads/profiles/${user?.profileImage?.split('/').pop()}`}  // 프로필 이미지가 없을 경우 기본 이미지 표시
+              src={`http://172.16.30.182:40001/uploads/profiles/${user?.profileImage?.split('/').pop()}`}  // 프로필 이미지가 없을 경우 기본 이미지 표시
               alt="User Profile"
               className={styles.profileImage}
             />

@@ -44,7 +44,7 @@ export default function EditUserModal({ user, onClose, onUserUpdate }: EditUserM
     }
   
     try {
-      const response = await fetch(`http://localhost:8080/api/users/${user.id}`, {
+      const response = await fetch(`http://172.16.30.182:40001/api/users/${user.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

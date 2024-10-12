@@ -29,7 +29,7 @@ export default function UserListModal({ onClose }: { onClose: () => void }) {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/users/list', {
+      const response = await fetch('http://172.16.30.182:40001/api/users/list', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`, // JWT 토큰을 Authorization 헤더에 추가
